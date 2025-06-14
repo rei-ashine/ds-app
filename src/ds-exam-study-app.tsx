@@ -246,7 +246,8 @@ export default function DSExamStudyApp() {
               duration={750} 
               toggled={isDarkMode} 
               toggle={toggleDarkMode}
-              className={`w-10 h-10 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+              style={{ fontSize: '1.9rem' }}
               placeholder={undefined}
               onPointerEnterCapture={undefined}
               onPointerLeaveCapture={undefined}
