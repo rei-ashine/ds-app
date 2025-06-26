@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, BookOpen, Brain, Wrench, Briefcase, RotateCcw, ChevronRight } from 'lucide-react';
 import "@theme-toggles/react/css/Expand.css";
 import { Expand } from "@theme-toggles/react";
@@ -7,6 +7,7 @@ import { useAnsweredQuestions, useTheme } from './hooks/useLocalStorage';
 import { useFilteredQuestions } from './hooks/useFilteredQuestions';
 import { useCategoryStats } from './hooks/useCategoryStats';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { shuffleQuestionOptions, ShuffledQuestion } from './utils/shuffleOptions';
 
 
 export default function DSExamStudyApp() {
@@ -17,14 +18,24 @@ export default function DSExamStudyApp() {
   const [studyMode, setStudyMode] = useState<StudyMode>('all');
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
   const [showStats, setShowStats] = useState(false);
+  const [shuffledQuestions, setShuffledQuestions] = useState<ShuffledQuestion[]>([]);
   
   const { answeredQuestions, addAnsweredQuestion, isLoading } = useAnsweredQuestions();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const filteredQuestions = useFilteredQuestions(studyMode, selectedCategory, answeredQuestions);
   const categoryStats = useCategoryStats(answeredQuestions);
 
+  // Shuffle questions when filtered questions change
+  useEffect(() => {
+    const shuffled = filteredQuestions.map(shuffleQuestionOptions);
+    setShuffledQuestions(shuffled);
+    // Reset current question when questions change
+    setCurrentQuestion(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+  }, [filteredQuestions]);
 
-  const currentQuestionData = filteredQuestions[currentQuestion];
+  const currentQuestionData = shuffledQuestions[currentQuestion];
 
   const handleAnswer = (index: number) => {
     if (showResult) return;
@@ -32,9 +43,9 @@ export default function DSExamStudyApp() {
   };
 
   const handleSubmit = () => {
-    if (selectedAnswer === null) return;
+    if (selectedAnswer === null || !currentQuestionData) return;
     
-    const isCorrect = selectedAnswer === currentQuestionData.correct;
+    const isCorrect = selectedAnswer === currentQuestionData.shuffledCorrectIndex;
     setShowResult(true);
     
     if (isCorrect) {
@@ -52,7 +63,7 @@ export default function DSExamStudyApp() {
   };
 
   const handleNext = () => {
-    if (currentQuestion < filteredQuestions.length - 1) {
+    if (currentQuestion < shuffledQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
       setShowResult(false);
@@ -75,7 +86,7 @@ export default function DSExamStudyApp() {
   }
 
   if (showStats) {
-    const totalQuestions = filteredQuestions.length;
+    const totalQuestions = shuffledQuestions.length;
     const percentage = Math.round((score / totalQuestions) * 100);
 
     return (
@@ -142,7 +153,7 @@ export default function DSExamStudyApp() {
     );
   }
 
-  if (!currentQuestionData) {
+  if (!currentQuestionData || shuffledQuestions.length === 0) {
     return (
       <div className={`min-h-screen p-4 flex items-center justify-center ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
         <div className={`rounded-lg shadow-md p-8 text-center ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
@@ -279,11 +290,11 @@ export default function DSExamStudyApp() {
           <div className={`w-full rounded-full h-2.5 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
             <div 
               className="bg-blue-600 h-2.5 rounded-full transition-all"
-              style={{ width: `${((currentQuestion + 1) / filteredQuestions.length) * 100}%` }}
+              style={{ width: `${((currentQuestion + 1) / shuffledQuestions.length) * 100}%` }}
             ></div>
           </div>
           <div className={`text-center mt-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            問題 {currentQuestion + 1} / {filteredQuestions.length}
+            問題 {currentQuestion + 1} / {shuffledQuestions.length}
           </div>
         </div>
 
@@ -318,14 +329,14 @@ export default function DSExamStudyApp() {
 
           {/* 選択肢 */}
           <div className="space-y-3 mb-6">
-            {currentQuestionData.options.map((option, index) => (
+            {currentQuestionData?.shuffledOptions.map((option, index) => (
               <button
                 key={index}
                 onClick={() => handleAnswer(index)}
                 disabled={showResult}
                 className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
                   showResult
-                    ? index === currentQuestionData.correct
+                    ? index === currentQuestionData.shuffledCorrectIndex
                       ? isDarkMode 
                         ? 'border-green-500 bg-green-900 bg-opacity-30'
                         : 'border-green-500 bg-green-50'
