@@ -51,18 +51,20 @@ export default function DSExamStudyApp() {
     if (isCorrect) {
       setScore(score + 1);
     }
-    
-    // 回答履歴を記録
-    const answer = {
-      questionId: currentQuestionData.id,
-      correct: isCorrect,
-      timestamp: new Date().toISOString()
-    };
-    
-    addAnsweredQuestion(answer);
   };
 
   const handleNext = () => {
+    // 回答履歴を記録
+    if (selectedAnswer !== null && currentQuestionData) {
+      const isCorrect = selectedAnswer === currentQuestionData.shuffledCorrectIndex;
+      const answer = {
+        questionId: currentQuestionData.id,
+        correct: isCorrect,
+        timestamp: new Date().toISOString()
+      };
+      addAnsweredQuestion(answer);
+    }
+
     if (currentQuestion < shuffledQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
@@ -203,6 +205,8 @@ export default function DSExamStudyApp() {
               style={{ fontSize: '1.9rem' }}
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               placeholder=""
+              onPointerEnterCapture={undefined}
+              onPointerLeaveCapture={undefined}
             />
             </div>
           </div>
