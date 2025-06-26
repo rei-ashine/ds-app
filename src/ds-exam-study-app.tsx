@@ -202,9 +202,6 @@ export default function DSExamStudyApp() {
               className={`p-2 rounded-md hover:bg-opacity-80 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
               style={{ fontSize: '1.9rem' }}
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              placeholder={undefined}
-              onPointerEnterCapture={undefined}
-              onPointerLeaveCapture={undefined}
             />
             </div>
           </div>
