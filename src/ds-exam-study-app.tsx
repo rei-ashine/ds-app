@@ -205,8 +205,6 @@ export default function DSExamStudyApp() {
               style={{ fontSize: '1.9rem' }}
               aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
               placeholder=""
-              onPointerEnterCapture={undefined}
-              onPointerLeaveCapture={undefined}
             />
             </div>
           </div>
