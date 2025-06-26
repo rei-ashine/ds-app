@@ -178,9 +178,11 @@ export default function DSExamStudyApp() {
     <div className={`min-h-screen p-4 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="max-w-4xl mx-auto">
         {/* ヘッダー */}
-        <div className={`rounded-lg shadow-md p-6 mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} relative`}>
-          {/* ダークモードトグルとGitHubロゴ */}
-          <div className="absolute top-4 right-4 flex items-center gap-2">
+        <div className={`rounded-lg shadow-md p-6 mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          {/* ヘッダー上部 - ダークモードトグルとGitHubロゴ */}
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1"></div>
+            <div className="flex items-center gap-2">
             <a 
               href="https://github.com/rei-ashine" 
               target="_blank" 
@@ -209,6 +211,7 @@ export default function DSExamStudyApp() {
                 onPointerLeaveCapture={undefined}
               />
             </button>
+            </div>
           </div>
           
           <h1 className={`text-2xl font-bold text-center mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
