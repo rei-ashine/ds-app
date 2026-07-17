@@ -10,11 +10,16 @@ export function useCategoryStats(answeredQuestions: AnsweredQuestion[]) {
       'ビジネス力': { correct: 0, total: 0 }
     };
 
-    answeredQuestions.forEach(answer => {
-      const question = questions.find(q => q.id === answer.questionId);
+    const latestAnswers = new Map<number, boolean>();
+    answeredQuestions.forEach(q => {
+      latestAnswers.set(q.questionId, q.correct);
+    });
+
+    latestAnswers.forEach((isCorrect, questionId) => {
+      const question = questions.find(q => q.id === questionId);
       if (question) {
         stats[question.category].total++;
-        if (answer.correct) {
+        if (isCorrect) {
           stats[question.category].correct++;
         }
       }

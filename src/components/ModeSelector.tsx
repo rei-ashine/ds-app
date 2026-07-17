@@ -20,7 +20,13 @@ export function ModeSelector({
     <>
       <div className="flex flex-wrap gap-4 mb-4 justify-center">
         <button
-          onClick={() => { setStudyMode('all'); setSelectedCategory('all'); resetQuiz(); }}
+          onClick={() => { 
+            if (studyMode !== 'all') {
+              setStudyMode('all'); 
+              setSelectedCategory('all'); 
+              resetQuiz(); 
+            }
+          }}
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             studyMode === 'all' 
               ? 'bg-blue-600 text-white' 
@@ -30,7 +36,12 @@ export function ModeSelector({
           総合テスト
         </button>
         <button
-          onClick={() => { setStudyMode('category'); resetQuiz(); }}
+          onClick={() => { 
+            if (studyMode !== 'category') {
+              setStudyMode('category'); 
+              resetQuiz(); 
+            }
+          }}
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             studyMode === 'category' 
               ? 'bg-blue-600 text-white' 
@@ -40,7 +51,12 @@ export function ModeSelector({
           分野別テスト
         </button>
         <button
-          onClick={() => { setStudyMode('review'); resetQuiz(); }}
+          onClick={() => { 
+            if (studyMode !== 'review') {
+              setStudyMode('review'); 
+              resetQuiz(); 
+            }
+          }}
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             studyMode === 'review' 
               ? 'bg-yellow-500 text-white' 
@@ -56,7 +72,12 @@ export function ModeSelector({
           {(['データサイエンス力', 'データエンジニアリング力', 'ビジネス力'] as Category[]).map(category => (
             <button
               key={category}
-              onClick={() => { setSelectedCategory(category); resetQuiz(); }}
+              onClick={() => { 
+                if (selectedCategory !== category) {
+                  setSelectedCategory(category); 
+                  resetQuiz(); 
+                }
+              }}
               className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-colors ${
                 selectedCategory === category
                   ? 'border-blue-600 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-900 dark:bg-opacity-30 dark:text-blue-300'

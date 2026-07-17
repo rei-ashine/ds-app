@@ -37,9 +37,16 @@ export default function DSExamStudyApp() {
 
     let newFiltered;
     if (studyMode === 'review') {
-      const incorrectIds = answeredQuestions
-        .filter(q => !q.correct)
-        .map(q => q.questionId);
+      // Find the latest answer for each question
+      const latestAnswers = new Map<number, boolean>();
+      answeredQuestions.forEach(q => {
+        latestAnswers.set(q.questionId, q.correct);
+      });
+      
+      const incorrectIds = Array.from(latestAnswers.entries())
+        .filter(([_, isCorrect]) => !isCorrect)
+        .map(([id, _]) => id);
+        
       newFiltered = questions.filter(q => incorrectIds.includes(q.id));
     } else if (selectedCategory === 'all') {
       newFiltered = questions;
