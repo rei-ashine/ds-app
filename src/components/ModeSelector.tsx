@@ -4,28 +4,20 @@ import { StudyMode, Category } from '../types';
 export interface ModeSelectorProps {
   studyMode: StudyMode;
   selectedCategory: Category;
-  setStudyMode: (m: StudyMode) => void;
-  setSelectedCategory: (c: Category) => void;
-  resetQuiz: () => void;
+  handleModeSwitch: (mode: StudyMode, category?: Category) => void;
 }
 
 export function ModeSelector({ 
   studyMode, 
   selectedCategory, 
-  setStudyMode, 
-  setSelectedCategory, 
-  resetQuiz 
+  handleModeSwitch 
 }: ModeSelectorProps) {
   return (
     <>
       <div className="flex flex-wrap gap-4 mb-4 justify-center">
         <button
           onClick={() => { 
-            if (studyMode !== 'all') {
-              setStudyMode('all'); 
-              setSelectedCategory('all'); 
-              resetQuiz(); 
-            }
+            if (studyMode !== 'all') handleModeSwitch('all', 'all');
           }}
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             studyMode === 'all' 
@@ -38,8 +30,7 @@ export function ModeSelector({
         <button
           onClick={() => { 
             if (studyMode !== 'category') {
-              setStudyMode('category'); 
-              resetQuiz(); 
+              handleModeSwitch('category', selectedCategory === 'all' ? 'データサイエンス力' : selectedCategory);
             }
           }}
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
@@ -52,10 +43,7 @@ export function ModeSelector({
         </button>
         <button
           onClick={() => { 
-            if (studyMode !== 'review') {
-              setStudyMode('review'); 
-              resetQuiz(); 
-            }
+            if (studyMode !== 'review') handleModeSwitch('review');
           }}
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             studyMode === 'review' 
@@ -73,10 +61,7 @@ export function ModeSelector({
             <button
               key={category}
               onClick={() => { 
-                if (selectedCategory !== category) {
-                  setSelectedCategory(category); 
-                  resetQuiz(); 
-                }
+                if (selectedCategory !== category) handleModeSwitch('category', category);
               }}
               className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-colors ${
                 selectedCategory === category

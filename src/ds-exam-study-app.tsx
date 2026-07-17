@@ -15,6 +15,7 @@ import { QuestionCard } from './components/QuestionCard';
 import { ResultScreen } from './components/ResultScreen';
 import { NoQuestionsScreen } from './components/NoQuestionsScreen';
 import { StudyTips } from './components/StudyTips';
+import { ConfirmDialog } from './components/ConfirmDialog';
 
 export default function DSExamStudyApp() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -26,6 +27,7 @@ export default function DSExamStudyApp() {
   const [showStats, setShowStats] = useState(false);
   const [shuffledQuestions, setShuffledQuestions] = useState<ShuffledQuestion[]>([]);
   const [quizSessionId, setQuizSessionId] = useState(0);
+  const [confirmDialog, setConfirmDialog] = useState<{isOpen: boolean, action: (() => void) | null}>({isOpen: false, action: null});
 
   const { answeredQuestions, addAnsweredQuestion, isLoading } = useAnsweredQuestions();
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -101,6 +103,22 @@ export default function DSExamStudyApp() {
     setQuizSessionId(prev => prev + 1);
   };
 
+  const handleModeSwitch = (mode: StudyMode, category?: Category) => {
+    const action = () => {
+      setStudyMode(mode);
+      if (category) {
+        setSelectedCategory(category);
+      }
+      resetQuiz();
+    };
+
+    if (currentQuestion > 0 || selectedAnswer !== null) {
+      setConfirmDialog({ isOpen: true, action });
+    } else {
+      action();
+    }
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -131,9 +149,7 @@ export default function DSExamStudyApp() {
           <ModeSelector 
             studyMode={studyMode} 
             selectedCategory={selectedCategory} 
-            setStudyMode={setStudyMode} 
-            setSelectedCategory={setSelectedCategory} 
-            resetQuiz={resetQuiz} 
+            handleModeSwitch={handleModeSwitch} 
           />
           <ProgressBar 
             currentQuestionIndex={currentQuestion} 
@@ -153,6 +169,16 @@ export default function DSExamStudyApp() {
         
         <StudyTips />
       </div>
+
+      <ConfirmDialog 
+        isOpen={confirmDialog.isOpen}
+        message="現在のテストの進捗はリセットされます。別のテストに移動してもよろしいですか？"
+        onConfirm={() => {
+          if (confirmDialog.action) confirmDialog.action();
+          setConfirmDialog({ isOpen: false, action: null });
+        }}
+        onCancel={() => setConfirmDialog({ isOpen: false, action: null })}
+      />
     </div>
   );
 }
