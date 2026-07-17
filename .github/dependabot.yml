@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # npm の依存パッケージ用（Reactアプリなどのフロントエンド）
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # GitHub Actions のワークフロー用
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
