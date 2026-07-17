@@ -34,20 +34,17 @@ export function useAnsweredQuestions() {
 }
 
 export function useTheme() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    const theme = loadTheme();
-    setIsDarkMode(theme === 'dark');
-  }, []);
+  const [isDarkMode, setIsDarkMode] = useState(() => loadTheme() === 'dark');
 
   useEffect(() => {
     saveTheme(isDarkMode ? 'dark' : 'light');
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, [isDarkMode]);
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
+  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
   return { isDarkMode, toggleDarkMode };
 }
