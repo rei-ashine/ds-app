@@ -1,4 +1,4 @@
-import { useEffect, useRef, memo } from 'react';
+import { useEffect, useRef, memo, useState } from 'react';
 
 const TWO_PI = Math.PI * 2;
 
@@ -26,6 +26,7 @@ interface DotFieldProps {
   gradientFrom?: string;
   gradientTo?: string;
   glowColor?: string;
+  glowBlendMode?: 'normal' | 'multiply' | 'screen' | 'overlay' | 'color-dodge' | 'color-burn';
   [key: string]: unknown;
 }
 
@@ -42,6 +43,7 @@ export const DotField = memo(({
   gradientFrom = 'rgba(168, 85, 247, 0.35)',
   gradientTo = 'rgba(180, 151, 207, 0.25)',
   glowColor = '#120F17',
+  glowBlendMode = 'normal',
   ...rest
 }: DotFieldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -67,6 +69,12 @@ export const DotField = memo(({
   propsRef.current = { dotRadius, dotSpacing, cursorRadius, cursorForce, bulgeOnly, bulgeStrength, sparkle, waveAmplitude, gradientFrom, gradientTo };
   const rebuildRef = useRef<(() => void) | null>(null);
   const glowIdRef = useRef(`dot-field-glow-${Math.random().toString(36).slice(2, 9)}`);
+
+  // Fade-in animation state
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -273,7 +281,10 @@ export const DotField = memo(({
   }, [dotRadius, dotSpacing]);
 
   return (
-    <div className="w-full h-full relative" {...rest}>
+    <div 
+      className={`w-full h-full relative transition-opacity duration-[1500ms] ease-out ${isMounted ? 'opacity-100' : 'opacity-0'}`} 
+      {...rest}
+    >
       <canvas
         ref={canvasRef}
         style={{
@@ -305,7 +316,7 @@ export const DotField = memo(({
           cy="-9999"
           r={glowRadius}
           fill={`url(#${glowIdRef.current})`}
-          style={{ opacity: 0, willChange: 'opacity' }}
+          style={{ opacity: 0, willChange: 'opacity', mixBlendMode: glowBlendMode as any }}
         />
       </svg>
     </div>

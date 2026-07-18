@@ -147,13 +147,18 @@ export default function DSExamStudyApp() {
       <div className="fixed inset-0 z-0 pointer-events-none">
         <DotField 
           dotSpacing={24}
-          gradientFrom={isDarkMode ? 'rgba(96, 165, 250, 0.6)' : 'rgba(59, 130, 246, 0.4)'} // blue-400 / blue-500
-          gradientTo={isDarkMode ? 'rgba(59, 130, 246, 0.4)' : 'rgba(37, 99, 235, 0.3)'}   // blue-500 / blue-600
-          glowColor={isDarkMode ? '#111827' : '#f9fafb'}
+          sparkle={true}
+          waveAmplitude={1.2}
+          glowRadius={280}
+          cursorRadius={450}
+          gradientFrom={isDarkMode ? 'rgba(56, 189, 248, 0.6)' : 'rgba(30, 58, 138, 0.35)'} 
+          gradientTo={isDarkMode ? 'rgba(59, 130, 246, 0.6)' : 'rgba(37, 99, 235, 0.35)'}   
+          glowColor={isDarkMode ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.9)'}
+          glowBlendMode={isDarkMode ? 'screen' : 'normal'}
         />
       </div>
       <div className="max-w-4xl mx-auto relative z-10">
-        <div className="rounded-lg shadow-md p-6 mb-6 bg-white dark:bg-gray-800 transition-colors">
+        <div className="rounded-2xl shadow-2xl p-6 mb-6 bg-white/85 dark:bg-gray-800/85 backdrop-blur-lg border border-white/20 dark:border-gray-700/50 transition-all duration-300">
           <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
           <ModeSelector 
             studyMode={studyMode} 
