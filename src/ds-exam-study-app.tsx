@@ -16,6 +16,7 @@ import { ResultScreen } from './components/ResultScreen';
 import { NoQuestionsScreen } from './components/NoQuestionsScreen';
 import { StudyTips } from './components/StudyTips';
 import { ConfirmDialog } from './components/ConfirmDialog';
+import { DotField } from './components/DotField';
 
 export default function DSExamStudyApp() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -142,8 +143,16 @@ export default function DSExamStudyApp() {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gray-50 dark:bg-gray-900 transition-colors">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen relative p-4 bg-gray-50 dark:bg-gray-900 transition-colors">
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <DotField 
+          dotSpacing={24}
+          gradientFrom={isDarkMode ? 'rgba(96, 165, 250, 0.6)' : 'rgba(59, 130, 246, 0.4)'} // blue-400 / blue-500
+          gradientTo={isDarkMode ? 'rgba(59, 130, 246, 0.4)' : 'rgba(37, 99, 235, 0.3)'}   // blue-500 / blue-600
+          glowColor={isDarkMode ? '#111827' : '#f9fafb'}
+        />
+      </div>
+      <div className="max-w-4xl mx-auto relative z-10">
         <div className="rounded-lg shadow-md p-6 mb-6 bg-white dark:bg-gray-800 transition-colors">
           <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
           <ModeSelector 
