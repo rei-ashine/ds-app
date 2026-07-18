@@ -36,7 +36,7 @@ export function Header({ isDarkMode, toggleDarkMode }: HeaderProps) {
         </div>
       </div>
       <h1 className="text-2xl font-bold text-center mb-4 text-gray-900 dark:text-white transition-colors">
-        DS検定 試験勉強アプリ
+        DS検定 対策アプリ
       </h1>
     </>
   );
