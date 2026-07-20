@@ -151,9 +151,9 @@ export default function DSExamStudyApp() {
           waveAmplitude={1.2}
           glowRadius={280}
           cursorRadius={450}
-          gradientFrom={isDarkMode ? 'rgba(56, 189, 248, 0.6)' : 'rgba(30, 58, 138, 0.35)'} 
-          gradientTo={isDarkMode ? 'rgba(59, 130, 246, 0.6)' : 'rgba(37, 99, 235, 0.35)'}   
-          glowColor={isDarkMode ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.9)'}
+          gradientFrom={isDarkMode ? 'rgba(56, 189, 248, 0.6)' : 'rgba(30, 58, 138, 0.75)'} 
+          gradientTo={isDarkMode ? 'rgba(59, 130, 246, 0.6)' : 'rgba(37, 99, 235, 0.75)'}   
+          glowColor={isDarkMode ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.4)'}
           glowBlendMode={isDarkMode ? 'screen' : 'normal'}
         />
       </div>
