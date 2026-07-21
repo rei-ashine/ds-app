@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Expand } from "@theme-toggles/react";
 
 export interface HeaderProps {
@@ -5,7 +6,7 @@ export interface HeaderProps {
   toggleDarkMode: () => void;
 }
 
-export function Header({ isDarkMode, toggleDarkMode }: HeaderProps) {
+export const Header = memo(({ isDarkMode, toggleDarkMode }: HeaderProps) => {
   return (
     <>
       <div className="flex justify-between items-start mb-4">
@@ -40,4 +41,4 @@ export function Header({ isDarkMode, toggleDarkMode }: HeaderProps) {
       </h1>
     </>
   );
-}
+});

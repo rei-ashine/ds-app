@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import "@theme-toggles/react/css/Expand.css";
 import { StudyMode, Category } from './types';
 import { useAnsweredQuestions, useTheme } from './hooks/useLocalStorage';
@@ -28,28 +28,27 @@ export default function DSExamStudyApp() {
   const [showStats, setShowStats] = useState(false);
   const [shuffledQuestions, setShuffledQuestions] = useState<ShuffledQuestion[]>([]);
   const [quizSessionId, setQuizSessionId] = useState(0);
+  const [prevSessionKey, setPrevSessionKey] = useState("");
   const [confirmDialog, setConfirmDialog] = useState<{isOpen: boolean, action: (() => void) | null}>({isOpen: false, action: null});
 
   const { answeredQuestions, addAnsweredQuestion, isLoading } = useAnsweredQuestions();
   const { isDarkMode, toggleDarkMode } = useTheme();
   
-  const categoryStats = useCategoryStats(answeredQuestions);
+  const categoryStats = useCategoryStats(answeredQuestions, showStats);
 
-  useEffect(() => {
-    if (isLoading) return;
-
+  // レンダーフェーズでの同期的State更新（Double Renderの防止）
+  const currentSessionKey = isLoading ? "loading" : `${quizSessionId}-${studyMode}-${selectedCategory}`;
+  if (prevSessionKey !== currentSessionKey && !isLoading) {
+    setPrevSessionKey(currentSessionKey);
     let newFiltered;
     if (studyMode === 'review') {
-      // Find the latest answer for each question
       const latestAnswers = new Map<number, boolean>();
       answeredQuestions.forEach(q => {
         latestAnswers.set(q.questionId, q.correct);
       });
-      
       const incorrectIds = Array.from(latestAnswers.entries())
         .filter(([_, isCorrect]) => !isCorrect)
         .map(([id, _]) => id);
-        
       newFiltered = questions.filter(q => incorrectIds.includes(q.id));
     } else if (selectedCategory === 'all') {
       newFiltered = questions;
@@ -58,23 +57,23 @@ export default function DSExamStudyApp() {
     }
 
     if (newFiltered.length > 0) {
-      const questionsWithShuffledOptions = shuffleQuestions(newFiltered).map(q => shuffleQuestionOptions(q));
-      setShuffledQuestions(questionsWithShuffledOptions);
+      setShuffledQuestions(shuffleQuestions(newFiltered).map(q => shuffleQuestionOptions(q)));
     } else {
       setShuffledQuestions([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, studyMode, selectedCategory, quizSessionId]);
+  }
 
-  const handleAnswer = (index: number) => {
+  const handleAnswer = useCallback((index: number) => {
     setSelectedAnswer(index);
-  };
+  }, []);
 
-  const handleSubmit = () => {
+  const currentQuestionData = shuffledQuestions[currentQuestion];
+
+  const handleSubmit = useCallback(() => {
     if (selectedAnswer === null || !currentQuestionData) return;
     
     const isCorrect = selectedAnswer === currentQuestionData.shuffledCorrectIndex;
-    if (isCorrect) setScore(score + 1);
+    if (isCorrect) setScore(prev => prev + 1);
     
     addAnsweredQuestion({
       questionId: currentQuestionData.id,
@@ -83,28 +82,33 @@ export default function DSExamStudyApp() {
     });
     
     setShowResult(true);
-  };
+  }, [selectedAnswer, currentQuestionData, addAnsweredQuestion]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (currentQuestion < shuffledQuestions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+      setCurrentQuestion(prev => prev + 1);
       setSelectedAnswer(null);
       setShowResult(false);
     } else {
       setShowStats(true);
     }
-  };
+  }, [currentQuestion, shuffledQuestions.length]);
 
-  const resetQuiz = () => {
+  const resetQuiz = useCallback(() => {
     setCurrentQuestion(0);
     setSelectedAnswer(null);
     setShowResult(false);
     setScore(0);
     setShowStats(false);
     setQuizSessionId(prev => prev + 1);
-  };
+  }, []);
 
-  const handleModeSwitch = (mode: StudyMode, category?: Category) => {
+  const quizProgressRef = useRef({ currentQuestion, selectedAnswer });
+  useEffect(() => {
+    quizProgressRef.current = { currentQuestion, selectedAnswer };
+  }, [currentQuestion, selectedAnswer]);
+
+  const handleModeSwitch = useCallback((mode: StudyMode, category?: Category) => {
     const action = () => {
       setStudyMode(mode);
       if (category) {
@@ -113,12 +117,29 @@ export default function DSExamStudyApp() {
       resetQuiz();
     };
 
-    if (currentQuestion > 0 || selectedAnswer !== null) {
+    const { currentQuestion: cq, selectedAnswer: sa } = quizProgressRef.current;
+    if (cq > 0 || sa !== null) {
       setConfirmDialog({ isOpen: true, action });
     } else {
       action();
     }
-  };
+  }, [resetQuiz]);
+
+  const handleStartReview = useCallback(() => {
+    setStudyMode('review');
+    resetQuiz();
+  }, [resetQuiz]);
+
+  const handleConfirmAction = useCallback(() => {
+    setConfirmDialog(prev => {
+      if (prev.action) prev.action();
+      return { isOpen: false, action: null };
+    });
+  }, []);
+
+  const handleCancelAction = useCallback(() => {
+    setConfirmDialog({ isOpen: false, action: null });
+  }, []);
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -131,13 +152,12 @@ export default function DSExamStudyApp() {
         totalQuestions={shuffledQuestions.length} 
         categoryStats={categoryStats}
         resetQuiz={resetQuiz} 
-        startReview={() => { setStudyMode('review'); resetQuiz(); }} 
+        startReview={handleStartReview} 
       />
     );
   }
 
-  const currentQuestionData = shuffledQuestions[currentQuestion];
-
+  // currentQuestionData is already declared above for use in handleSubmit
   if (!currentQuestionData || shuffledQuestions.length === 0) {
     return <NoQuestionsScreen resetQuiz={resetQuiz} setStudyMode={setStudyMode} setSelectedCategory={setSelectedCategory} />;
   }
@@ -187,11 +207,8 @@ export default function DSExamStudyApp() {
       <ConfirmDialog 
         isOpen={confirmDialog.isOpen}
         message="現在のテストの進捗はリセットされます。別のテストに移動してもよろしいですか？"
-        onConfirm={() => {
-          if (confirmDialog.action) confirmDialog.action();
-          setConfirmDialog({ isOpen: false, action: null });
-        }}
-        onCancel={() => setConfirmDialog({ isOpen: false, action: null })}
+        onConfirm={handleConfirmAction}
+        onCancel={handleCancelAction}
       />
     </div>
   );

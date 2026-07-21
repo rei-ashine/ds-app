@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Brain, Wrench, Briefcase } from 'lucide-react';
 import { StudyMode, Category } from '../types';
 
@@ -7,11 +8,11 @@ export interface ModeSelectorProps {
   handleModeSwitch: (mode: StudyMode, category?: Category) => void;
 }
 
-export function ModeSelector({ 
+export const ModeSelector = memo(({ 
   studyMode, 
   selectedCategory, 
   handleModeSwitch 
-}: ModeSelectorProps) {
+}: ModeSelectorProps) => {
   return (
     <>
       <div className="flex flex-wrap gap-4 mb-4 justify-center">
@@ -79,4 +80,4 @@ export function ModeSelector({
       )}
     </>
   );
-}
+});

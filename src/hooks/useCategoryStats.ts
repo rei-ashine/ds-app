@@ -2,13 +2,15 @@ import { useMemo } from 'react';
 import { questions } from '../questions';
 import { AnsweredQuestion } from '../types';
 
-export function useCategoryStats(answeredQuestions: AnsweredQuestion[]) {
+export function useCategoryStats(answeredQuestions: AnsweredQuestion[], isVisible: boolean) {
   return useMemo(() => {
     const stats = {
       'データサイエンス力': { correct: 0, total: 0 },
       'データエンジニアリング力': { correct: 0, total: 0 },
       'ビジネス力': { correct: 0, total: 0 }
     };
+
+    if (!isVisible) return stats;
 
     const latestAnswers = new Map<number, boolean>();
     answeredQuestions.forEach(q => {

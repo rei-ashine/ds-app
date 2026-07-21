@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Brain, Wrench, Briefcase, RotateCcw } from 'lucide-react';
 
 export interface ResultScreenProps {
@@ -8,13 +9,13 @@ export interface ResultScreenProps {
   startReview: () => void;
 }
 
-export function ResultScreen({
+export const ResultScreen = memo(({
   score,
   totalQuestions,
   categoryStats,
   resetQuiz,
   startReview
-}: ResultScreenProps) {
+}: ResultScreenProps) => {
   return (
     <div className="min-h-screen p-4 bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="max-w-4xl mx-auto">
@@ -78,4 +79,4 @@ export function ResultScreen({
       </div>
     </div>
   );
-}
+});

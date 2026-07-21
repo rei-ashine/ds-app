@@ -1,4 +1,6 @@
-export function StudyTips() {
+import { memo } from 'react';
+
+export const StudyTips = memo(() => {
   return (
     <div className="mt-6 border rounded-lg p-4 bg-yellow-50 border-yellow-200 dark:bg-yellow-900 dark:bg-opacity-30 dark:border-yellow-700 transition-colors">
       <h4 className="font-semibold mb-2 text-yellow-900 dark:text-yellow-300">💡 学習のポイント</h4>
@@ -10,4 +12,4 @@ export function StudyTips() {
       </ul>
     </div>
   );
-}
+});

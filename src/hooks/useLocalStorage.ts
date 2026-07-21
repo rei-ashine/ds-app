@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AnsweredQuestion } from '../types';
 import { 
   loadAnsweredQuestions, 
@@ -21,14 +21,17 @@ export function useAnsweredQuestions() {
 
   useEffect(() => {
     if (answeredQuestions.length > 0) {
-      const cleanedQuestions = cleanupAnsweredQuestions(answeredQuestions);
-      saveAnsweredQuestions(cleanedQuestions);
+      const timer = setTimeout(() => {
+        const cleanedQuestions = cleanupAnsweredQuestions(answeredQuestions);
+        saveAnsweredQuestions(cleanedQuestions);
+      }, 50);
+      return () => clearTimeout(timer);
     }
   }, [answeredQuestions]);
 
-  const addAnsweredQuestion = (answer: AnsweredQuestion) => {
+  const addAnsweredQuestion = useCallback((answer: AnsweredQuestion) => {
     setAnsweredQuestions(prev => [...prev, answer]);
-  };
+  }, []);
 
   return { answeredQuestions, addAnsweredQuestion, isLoading };
 }
@@ -45,6 +48,6 @@ export function useTheme() {
     }
   }, [isDarkMode]);
 
-  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+  const toggleDarkMode = useCallback(() => setIsDarkMode(prev => !prev), []);
   return { isDarkMode, toggleDarkMode };
 }

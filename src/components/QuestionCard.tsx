@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { CheckCircle, XCircle, BookOpen, ChevronRight } from 'lucide-react';
 import { ShuffledQuestion } from '../utils/shuffleOptions';
 
@@ -11,7 +12,7 @@ export interface QuestionCardProps {
   handleNext: () => void;
 }
 
-export function QuestionCard({
+export const QuestionCard = memo(({
   currentQuestionData,
   showResult,
   selectedAnswer,
@@ -19,7 +20,7 @@ export function QuestionCard({
   handleAnswer,
   handleSubmit,
   handleNext
-}: QuestionCardProps) {
+}: QuestionCardProps) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
       <div className="mb-6">
@@ -112,4 +113,4 @@ export function QuestionCard({
       )}
     </div>
   );
-}
+});

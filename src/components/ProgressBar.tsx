@@ -1,9 +1,11 @@
+import { memo } from 'react';
+
 export interface ProgressBarProps {
   currentQuestionIndex: number;
   totalQuestions: number;
 }
 
-export function ProgressBar({ currentQuestionIndex, totalQuestions }: ProgressBarProps) {
+export const ProgressBar = memo(({ currentQuestionIndex, totalQuestions }: ProgressBarProps) => {
   return (
     <>
       <div className="w-full rounded-full h-2.5 bg-gray-200 dark:bg-gray-700 transition-colors">
@@ -17,4 +19,4 @@ export function ProgressBar({ currentQuestionIndex, totalQuestions }: ProgressBa
       </div>
     </>
   );
-}
+});

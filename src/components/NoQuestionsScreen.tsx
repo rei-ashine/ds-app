@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { StudyMode, Category } from '../types';
 
 export interface NoQuestionsScreenProps {
@@ -6,7 +7,7 @@ export interface NoQuestionsScreenProps {
   setSelectedCategory: (c: Category) => void;
 }
 
-export function NoQuestionsScreen({ resetQuiz, setStudyMode, setSelectedCategory }: NoQuestionsScreenProps) {
+export const NoQuestionsScreen = memo(({ resetQuiz, setStudyMode, setSelectedCategory }: NoQuestionsScreenProps) => {
   return (
     <div className="min-h-screen p-4 flex items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md max-w-md w-full transition-colors">
@@ -27,4 +28,4 @@ export function NoQuestionsScreen({ resetQuiz, setStudyMode, setSelectedCategory
       </div>
     </div>
   );
-}
+});
