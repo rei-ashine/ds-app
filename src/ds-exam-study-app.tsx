@@ -17,8 +17,18 @@ import { NoQuestionsScreen } from './components/NoQuestionsScreen';
 import { StudyTips } from './components/StudyTips';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { DotField } from './components/DotField';
+import { Footer } from './components/Footer';
+import { TermsScreen } from './components/TermsScreen';
+import { PrivacyScreen } from './components/PrivacyScreen';
+
+declare global {
+  interface Window {
+    dataLayer?: Record<string, unknown>[];
+  }
+}
 
 export default function DSExamStudyApp() {
+  const [activeView, setActiveView] = useState<'home' | 'terms' | 'privacy'>('home');
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -35,6 +45,52 @@ export default function DSExamStudyApp() {
   const { isDarkMode, toggleDarkMode } = useTheme();
   
   const categoryStats = useCategoryStats(answeredQuestions, showStats);
+
+  // URLハッシュ同期 ＆ ページビュー計測
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.toLowerCase();
+      let view: 'home' | 'terms' | 'privacy' = 'home';
+      if (hash === '#terms') view = 'terms';
+      else if (hash === '#privacy') view = 'privacy';
+      setActiveView(view);
+    };
+
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // 動的ドキュメントタイトル ＆ GTM 仮想ページビュー計測
+  useEffect(() => {
+    let title = 'DS検定 対策アプリ';
+    let path = '/';
+    if (activeView === 'terms') {
+      title = 'Terms of Service | DS Exam Study App';
+      path = '/#terms';
+    } else if (activeView === 'privacy') {
+      title = 'Privacy Policy | DS Exam Study App';
+      path = '/#privacy';
+    }
+    document.title = title;
+
+    if (window.dataLayer) {
+      window.dataLayer.push({
+        event: 'page_view',
+        page_title: title,
+        page_path: path
+      });
+    }
+  }, [activeView]);
+
+  const handleNavigate = useCallback((view: 'home' | 'terms' | 'privacy') => {
+    if (view === 'terms') window.location.hash = '#terms';
+    else if (view === 'privacy') window.location.hash = '#privacy';
+    else {
+      window.location.hash = '';
+      if (window.location.hash === '') setActiveView('home');
+    }
+  }, []);
 
   // レンダーフェーズでの同期的State更新（Double Renderの防止）
   const currentSessionKey = isLoading ? "loading" : `${quizSessionId}-${studyMode}-${selectedCategory}`;
@@ -145,38 +201,30 @@ export default function DSExamStudyApp() {
     return <LoadingSpinner />;
   }
 
-  if (showStats) {
-    return (
-      <ResultScreen 
-        score={score} 
-        totalQuestions={shuffledQuestions.length} 
-        categoryStats={categoryStats}
-        resetQuiz={resetQuiz} 
-        startReview={handleStartReview} 
-      />
-    );
-  }
-
-  // currentQuestionData is already declared above for use in handleSubmit
-  if (!currentQuestionData || shuffledQuestions.length === 0) {
-    return <NoQuestionsScreen resetQuiz={resetQuiz} setStudyMode={setStudyMode} setSelectedCategory={setSelectedCategory} />;
-  }
-
-  return (
-    <div className="min-h-screen relative p-4 bg-gray-50 dark:bg-gray-900 transition-colors">
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <DotField 
-          dotSpacing={24}
-          sparkle={true}
-          waveAmplitude={1.2}
-          glowRadius={280}
-          cursorRadius={450}
-          gradientFrom={isDarkMode ? 'rgba(56, 189, 248, 0.6)' : 'rgba(30, 58, 138, 0.75)'} 
-          gradientTo={isDarkMode ? 'rgba(59, 130, 246, 0.6)' : 'rgba(37, 99, 235, 0.75)'}   
-          glowColor={isDarkMode ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.4)'}
-          glowBlendMode={isDarkMode ? 'screen' : 'normal'}
+  const renderMainContent = () => {
+    if (activeView === 'terms') {
+      return <TermsScreen onBack={() => handleNavigate('home')} />;
+    }
+    if (activeView === 'privacy') {
+      return <PrivacyScreen onBack={() => handleNavigate('home')} />;
+    }
+    if (showStats) {
+      return (
+        <ResultScreen 
+          score={score} 
+          totalQuestions={shuffledQuestions.length} 
+          categoryStats={categoryStats}
+          resetQuiz={resetQuiz} 
+          startReview={handleStartReview} 
         />
-      </div>
+      );
+    }
+
+    if (!currentQuestionData || shuffledQuestions.length === 0) {
+      return <NoQuestionsScreen resetQuiz={resetQuiz} setStudyMode={setStudyMode} setSelectedCategory={setSelectedCategory} />;
+    }
+
+    return (
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="rounded-2xl shadow-2xl p-6 mb-6 bg-white/85 dark:bg-gray-800/85 backdrop-blur-lg border border-white/20 dark:border-gray-700/50 transition-all duration-300">
           <Header isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
@@ -203,6 +251,30 @@ export default function DSExamStudyApp() {
         
         <StudyTips />
       </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen relative p-4 bg-gray-50 dark:bg-gray-900 transition-colors flex flex-col justify-between">
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <DotField 
+          dotSpacing={24}
+          sparkle={true}
+          waveAmplitude={1.2}
+          glowRadius={280}
+          cursorRadius={450}
+          gradientFrom={isDarkMode ? 'rgba(56, 189, 248, 0.6)' : 'rgba(30, 58, 138, 0.75)'} 
+          gradientTo={isDarkMode ? 'rgba(59, 130, 246, 0.6)' : 'rgba(37, 99, 235, 0.75)'}   
+          glowColor={isDarkMode ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.4)'}
+          glowBlendMode={isDarkMode ? 'screen' : 'normal'}
+        />
+      </div>
+
+      <div className="flex-1 flex flex-col justify-center">
+        {renderMainContent()}
+      </div>
+
+      <Footer onNavigate={handleNavigate} />
 
       <ConfirmDialog 
         isOpen={confirmDialog.isOpen}
