@@ -270,7 +270,7 @@ export default function DSExamStudyApp() {
         />
       </div>
 
-      <div className="flex-1 flex flex-col justify-center">
+      <div className="flex-1 flex flex-col justify-start pt-2 md:pt-4 pb-8">
         {renderMainContent()}
       </div>
 
