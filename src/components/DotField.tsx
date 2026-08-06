@@ -273,7 +273,6 @@ export const DotField = memo(({
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', onMouseMove);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -316,7 +315,7 @@ export const DotField = memo(({
           cy="-9999"
           r={glowRadius}
           fill={`url(#${glowIdRef.current})`}
-          style={{ opacity: 0, willChange: 'opacity', mixBlendMode: glowBlendMode as any }}
+          style={{ opacity: 0, willChange: 'opacity', mixBlendMode: glowBlendMode as React.CSSProperties['mixBlendMode'] }}
         />
       </svg>
     </div>

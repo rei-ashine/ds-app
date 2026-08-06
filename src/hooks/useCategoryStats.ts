@@ -28,5 +28,5 @@ export function useCategoryStats(answeredQuestions: AnsweredQuestion[], isVisibl
     });
 
     return stats;
-  }, [answeredQuestions]);
+  }, [answeredQuestions, isVisible]);
 }
