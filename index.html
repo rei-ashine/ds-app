@@ -41,6 +41,12 @@
         } catch (e) {}
       })();
     </script>
+    <style>
+      /* JS 実行前に表示する静的コンテンツ用。アプリ本体（Tailwind の gray-50 / gray-900）の配色に合わせる */
+      .static-intro { min-height: 100vh; box-sizing: border-box; padding: 1rem; background: #f9fafb; color: #111827; font-family: sans-serif; }
+      .static-intro > div { max-width: 48rem; margin: 0 auto; }
+      .dark .static-intro { background: #111827; color: #fff; }
+    </style>
     <title>DS検定 対策アプリ</title>
   </head>
   <body>
@@ -49,8 +55,8 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <div id="root">
-      <!-- JS 実行前（クローラー・読み込み中）に表示される静的コンテンツ。React のマウント時に置き換えられる -->
-      <main style="max-width: 48rem; margin: 0 auto; padding: 2rem 1rem; font-family: sans-serif;">
+      <!-- JS 実行前（クローラー・JS 実行前）に表示される静的コンテンツ。React のマウント時に置き換えられる。カテゴリ・機能の記述は src/test/indexHtml.test.ts で実装との整合を検証している -->
+      <main class="static-intro"><div>
         <h1>DS検定 対策アプリ</h1>
         <p>
           DS検定（データサイエンティスト検定）リテラシーレベルに対応した、無料の対策・模擬クイズWebアプリです。
@@ -70,8 +76,8 @@
           <li>分野別の正答率の表示</li>
           <li>ダークモード対応</li>
         </ul>
-        <p>読み込み中です…</p>
-      </main>
+        <noscript><p>このアプリを利用するには JavaScript を有効にしてください。</p></noscript>
+      </div></main>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
