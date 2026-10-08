@@ -9,15 +9,9 @@ import {
 } from '../utils/localStorage';
 
 export function useAnsweredQuestions() {
-  const [answeredQuestions, setAnsweredQuestions] = useState<AnsweredQuestion[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    setIsLoading(true);
-    const savedQuestions = loadAnsweredQuestions();
-    setAnsweredQuestions(savedQuestions);
-    setIsLoading(false);
-  }, []);
+  // localStorage は同期的に読めるため、初期化時に読み込む（Effect内でのsetStateを避ける）
+  const [answeredQuestions, setAnsweredQuestions] = useState<AnsweredQuestion[]>(() => loadAnsweredQuestions());
+  const isLoading = false;
 
   useEffect(() => {
     if (answeredQuestions.length > 0) {
