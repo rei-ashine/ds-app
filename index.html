@@ -48,7 +48,31 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NSQN4WX7"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    <div id="root"></div>
+    <div id="root">
+      <!-- JS 実行前（クローラー・読み込み中）に表示される静的コンテンツ。React のマウント時に置き換えられる -->
+      <main style="max-width: 48rem; margin: 0 auto; padding: 2rem 1rem; font-family: sans-serif;">
+        <h1>DS検定 対策アプリ</h1>
+        <p>
+          DS検定（データサイエンティスト検定）リテラシーレベルに対応した、無料の対策・模擬クイズWebアプリです。
+          登録不要で、ブラウザ上ですぐに問題演習ができます。
+        </p>
+        <h2>出題分野</h2>
+        <ul>
+          <li>データサイエンス力</li>
+          <li>データエンジニアリング力</li>
+          <li>ビジネス力</li>
+        </ul>
+        <h2>主な機能</h2>
+        <ul>
+          <li>分野別・全問の演習</li>
+          <li>問題順・選択肢の自動シャッフル</li>
+          <li>間違えた問題の復習モード</li>
+          <li>分野別の正答率の表示</li>
+          <li>ダークモード対応</li>
+        </ul>
+        <p>読み込み中です…</p>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
