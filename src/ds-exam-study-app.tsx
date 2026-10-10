@@ -3,9 +3,9 @@ import "@theme-toggles/react/css/Expand.css";
 import { StudyMode, Category } from './types';
 import { useAnsweredQuestions, useTheme } from './hooks/useLocalStorage';
 import { useCategoryStats } from './hooks/useCategoryStats';
-import { LoadingSpinner } from './components/LoadingSpinner';
-import { shuffleQuestionOptions, ShuffledQuestion } from './utils/shuffleOptions';
-import { shuffleQuestions } from './utils/shuffleQuestions';
+import { useHashView } from './hooks/useHashView';
+import { ShuffledQuestion } from './utils/shuffleOptions';
+import { buildQuizQuestions } from './utils/quizQuestions';
 import { questions } from './questions';
 
 import { Header } from './components/Header';
@@ -21,14 +21,8 @@ import { Footer } from './components/Footer';
 import { TermsScreen } from './components/TermsScreen';
 import { PrivacyScreen } from './components/PrivacyScreen';
 
-declare global {
-  interface Window {
-    dataLayer?: Record<string, unknown>[];
-  }
-}
-
 export default function DSExamStudyApp() {
-  const [activeView, setActiveView] = useState<'home' | 'terms' | 'privacy'>('home');
+  const { activeView, navigate } = useHashView();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -41,82 +35,16 @@ export default function DSExamStudyApp() {
   const [prevSessionKey, setPrevSessionKey] = useState("");
   const [confirmDialog, setConfirmDialog] = useState<{isOpen: boolean, action: (() => void) | null}>({isOpen: false, action: null});
 
-  const { answeredQuestions, addAnsweredQuestion, isLoading } = useAnsweredQuestions();
+  const { answeredQuestions, addAnsweredQuestion } = useAnsweredQuestions();
   const { isDarkMode, toggleDarkMode } = useTheme();
   
   const categoryStats = useCategoryStats(answeredQuestions, showStats);
 
-  // URLハッシュ同期 ＆ ページビュー計測
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.toLowerCase();
-      let view: 'home' | 'terms' | 'privacy' = 'home';
-      if (hash === '#terms') view = 'terms';
-      else if (hash === '#privacy') view = 'privacy';
-      setActiveView(view);
-    };
-
-    handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  // 動的ドキュメントタイトル ＆ GTM 仮想ページビュー計測
-  useEffect(() => {
-    let title = 'DS検定 対策アプリ';
-    let path = '/';
-    if (activeView === 'terms') {
-      title = 'Terms of Service | DS Exam Study App';
-      path = '/#terms';
-    } else if (activeView === 'privacy') {
-      title = 'Privacy Policy | DS Exam Study App';
-      path = '/#privacy';
-    }
-    document.title = title;
-
-    if (window.dataLayer) {
-      window.dataLayer.push({
-        event: 'page_view',
-        page_title: title,
-        page_path: path
-      });
-    }
-  }, [activeView]);
-
-  const handleNavigate = useCallback((view: 'home' | 'terms' | 'privacy') => {
-    if (view === 'terms') window.location.hash = '#terms';
-    else if (view === 'privacy') window.location.hash = '#privacy';
-    else {
-      window.location.hash = '';
-      if (window.location.hash === '') setActiveView('home');
-    }
-  }, []);
-
   // レンダーフェーズでの同期的State更新（Double Renderの防止）
-  const currentSessionKey = isLoading ? "loading" : `${quizSessionId}-${studyMode}-${selectedCategory}`;
-  if (prevSessionKey !== currentSessionKey && !isLoading) {
+  const currentSessionKey = `${quizSessionId}-${studyMode}-${selectedCategory}`;
+  if (prevSessionKey !== currentSessionKey) {
     setPrevSessionKey(currentSessionKey);
-    let newFiltered;
-    if (studyMode === 'review') {
-      const latestAnswers = new Map<number, boolean>();
-      answeredQuestions.forEach(q => {
-        latestAnswers.set(q.questionId, q.correct);
-      });
-      const incorrectIds = Array.from(latestAnswers.entries())
-        .filter(([_, isCorrect]) => !isCorrect)
-        .map(([id, _]) => id);
-      newFiltered = questions.filter(q => incorrectIds.includes(q.id));
-    } else if (selectedCategory === 'all') {
-      newFiltered = questions;
-    } else {
-      newFiltered = questions.filter(q => q.category === selectedCategory);
-    }
-
-    if (newFiltered.length > 0) {
-      setShuffledQuestions(shuffleQuestions(newFiltered).map(q => shuffleQuestionOptions(q)));
-    } else {
-      setShuffledQuestions([]);
-    }
+    setShuffledQuestions(buildQuizQuestions(questions, studyMode, selectedCategory, answeredQuestions));
   }
 
   const handleAnswer = useCallback((index: number) => {
@@ -186,6 +114,12 @@ export default function DSExamStudyApp() {
     resetQuiz();
   }, [resetQuiz]);
 
+  const handleReturnToAll = useCallback(() => {
+    setStudyMode('all');
+    setSelectedCategory('all');
+    resetQuiz();
+  }, [resetQuiz]);
+
   const handleConfirmAction = useCallback(() => {
     setConfirmDialog(prev => {
       if (prev.action) prev.action();
@@ -197,16 +131,12 @@ export default function DSExamStudyApp() {
     setConfirmDialog({ isOpen: false, action: null });
   }, []);
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
   const renderMainContent = () => {
     if (activeView === 'terms') {
-      return <TermsScreen onBack={() => handleNavigate('home')} />;
+      return <TermsScreen onBack={() => navigate('home')} />;
     }
     if (activeView === 'privacy') {
-      return <PrivacyScreen onBack={() => handleNavigate('home')} />;
+      return <PrivacyScreen onBack={() => navigate('home')} />;
     }
     if (showStats) {
       return (
@@ -221,7 +151,7 @@ export default function DSExamStudyApp() {
     }
 
     if (!currentQuestionData || shuffledQuestions.length === 0) {
-      return <NoQuestionsScreen resetQuiz={resetQuiz} setStudyMode={setStudyMode} setSelectedCategory={setSelectedCategory} />;
+      return <NoQuestionsScreen onReturnToAll={handleReturnToAll} />;
     }
 
     return (
@@ -274,7 +204,7 @@ export default function DSExamStudyApp() {
         {renderMainContent()}
       </div>
 
-      <Footer onNavigate={handleNavigate} />
+      <Footer onNavigate={navigate} />
 
       <ConfirmDialog 
         isOpen={confirmDialog.isOpen}

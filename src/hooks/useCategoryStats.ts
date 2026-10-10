@@ -1,24 +1,20 @@
 import { useMemo } from 'react';
 import { questions } from '../questions';
-import { AnsweredQuestion } from '../types';
+import { AnsweredQuestion, CATEGORIES, CategoryStats } from '../types';
+import { getLatestAnswers } from '../utils/quizQuestions';
+
+const questionsById = new Map(questions.map(q => [q.id, q]));
 
 export function useCategoryStats(answeredQuestions: AnsweredQuestion[], isVisible: boolean) {
   return useMemo(() => {
-    const stats = {
-      'データサイエンス力': { correct: 0, total: 0 },
-      'データエンジニアリング力': { correct: 0, total: 0 },
-      'ビジネス力': { correct: 0, total: 0 }
-    };
+    const stats = Object.fromEntries(
+      CATEGORIES.map(category => [category, { correct: 0, total: 0 }])
+    ) as CategoryStats;
 
     if (!isVisible) return stats;
 
-    const latestAnswers = new Map<number, boolean>();
-    answeredQuestions.forEach(q => {
-      latestAnswers.set(q.questionId, q.correct);
-    });
-
-    latestAnswers.forEach((isCorrect, questionId) => {
-      const question = questions.find(q => q.id === questionId);
+    getLatestAnswers(answeredQuestions).forEach((isCorrect, questionId) => {
+      const question = questionsById.get(questionId);
       if (question) {
         stats[question.category].total++;
         if (isCorrect) {
