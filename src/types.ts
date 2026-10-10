@@ -4,12 +4,10 @@ export interface AnsweredQuestion {
   timestamp: string;
 }
 
-export interface StudyHistory {
-  date: string;
-  correct: number;
-  total: number;
-  category: string;
-}
+export const CATEGORIES = ['データサイエンス力', 'データエンジニアリング力', 'ビジネス力'] as const;
 
+export type QuestionCategory = typeof CATEGORIES[number];
 export type StudyMode = 'all' | 'category' | 'review';
-export type Category = 'all' | 'データサイエンス力' | 'データエンジニアリング力' | 'ビジネス力';
+export type Category = 'all' | QuestionCategory;
+export type View = 'home' | 'terms' | 'privacy';
+export type CategoryStats = Record<QuestionCategory, { correct: number; total: number }>;

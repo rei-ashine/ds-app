@@ -1,13 +1,10 @@
 import { memo } from 'react';
-import { StudyMode, Category } from '../types';
 
 export interface NoQuestionsScreenProps {
-  resetQuiz: () => void;
-  setStudyMode: (m: StudyMode) => void;
-  setSelectedCategory: (c: Category) => void;
+  onReturnToAll: () => void;
 }
 
-export const NoQuestionsScreen = memo(({ resetQuiz, setStudyMode, setSelectedCategory }: NoQuestionsScreenProps) => {
+export const NoQuestionsScreen = memo(({ onReturnToAll }: NoQuestionsScreenProps) => {
   return (
     <div className="min-h-screen p-4 flex items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md max-w-md w-full transition-colors">
@@ -16,11 +13,7 @@ export const NoQuestionsScreen = memo(({ resetQuiz, setStudyMode, setSelectedCat
           選択された条件（カテゴリー、または復習モード）に一致する問題がありません。
         </p>
         <button
-          onClick={() => {
-            setStudyMode('all');
-            setSelectedCategory('all');
-            resetQuiz();
-          }}
+          onClick={onReturnToAll}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           総合テストに戻る
