@@ -1,10 +1,12 @@
 import { memo } from 'react';
-import { Brain, Wrench, Briefcase, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
+import { CategoryStats, QuestionCategory } from '../types';
+import { CATEGORY_ICONS } from './categoryIcons';
 
 export interface ResultScreenProps {
   score: number;
   totalQuestions: number;
-  categoryStats: Record<string, { total: number; correct: number }>;
+  categoryStats: CategoryStats;
   resetQuiz: () => void;
   startReview: () => void;
 }
@@ -33,10 +35,9 @@ export const ResultScreen = memo(({
 
           <div className="space-y-6 mb-12">
             <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200 transition-colors">分野別正答率</h3>
-            {Object.entries(categoryStats).map(([category, stats]) => {
+            {(Object.entries(categoryStats) as [QuestionCategory, CategoryStats[QuestionCategory]][]).map(([category, stats]) => {
               const percentage = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-              const Icon = category === 'データサイエンス力' ? Brain : 
-                          category === 'データエンジニアリング力' ? Wrench : Briefcase;
+              const Icon = CATEGORY_ICONS[category];
               
               return (
                 <div key={category} className="bg-gray-50 dark:bg-gray-700 dark:bg-opacity-50 p-4 rounded-lg transition-colors">

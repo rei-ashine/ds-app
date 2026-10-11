@@ -21,6 +21,9 @@ export const QuestionCard = memo(({
   handleSubmit,
   handleNext
 }: QuestionCardProps) => {
+  const correctIndex = currentQuestionData.shuffledCorrectIndex;
+  const isAnswerCorrect = selectedAnswer === correctIndex;
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-all duration-300 min-h-[460px] md:h-[480px] flex flex-col justify-between mb-6 overflow-hidden">
       <div className="flex-1 flex flex-col justify-start">
@@ -41,7 +44,7 @@ export const QuestionCard = memo(({
               disabled={showResult}
               className={`w-full text-left p-3 rounded-lg border-2 transition-all min-h-[48px] md:min-h-[50px] flex items-center ${
                 showResult
-                  ? index === currentQuestionData.shuffledCorrectIndex
+                  ? index === correctIndex
                     ? 'border-green-500 bg-green-50 dark:bg-green-900 dark:bg-opacity-30 dark:border-green-500'
                     : index === selectedAnswer
                     ? 'border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-30 dark:border-red-500'
@@ -53,14 +56,14 @@ export const QuestionCard = memo(({
             >
               <div className="flex items-center justify-between w-full">
                 <span className={`text-xs md:text-sm text-gray-800 dark:text-gray-200 ${
-                  showResult && index === currentQuestionData.shuffledCorrectIndex ? 'font-bold' : ''
+                  showResult && index === correctIndex ? 'font-bold' : ''
                 }`}>
                   {option}
                 </span>
-                {showResult && index === currentQuestionData.shuffledCorrectIndex && (
+                {showResult && index === correctIndex && (
                   <CheckCircle className="text-green-500 flex-shrink-0 ml-2" size={18} />
                 )}
-                {showResult && index === selectedAnswer && index !== currentQuestionData.shuffledCorrectIndex && (
+                {showResult && index === selectedAnswer && index !== correctIndex && (
                   <XCircle className="text-red-500 flex-shrink-0 ml-2" size={18} />
                 )}
               </div>
@@ -95,18 +98,18 @@ export const QuestionCard = memo(({
 
         {showResult && (
           <div className={`mt-3 p-3.5 rounded-lg border transition-colors max-h-[160px] overflow-y-auto ${
-            selectedAnswer === currentQuestionData.shuffledCorrectIndex 
+            isAnswerCorrect
               ? 'bg-green-50 border-green-200 dark:bg-green-900 dark:bg-opacity-20 dark:border-green-800' 
               : 'bg-red-50 border-red-200 dark:bg-red-900 dark:bg-opacity-20 dark:border-red-800'
           }`}>
             <h4 className="font-bold flex items-center gap-2 mb-1 text-sm">
               <BookOpen size={18} className={
-                selectedAnswer === currentQuestionData.shuffledCorrectIndex 
+                isAnswerCorrect
                   ? "text-green-600 dark:text-green-400" 
                   : "text-red-600 dark:text-red-400"
               } />
               <span className={
-                selectedAnswer === currentQuestionData.shuffledCorrectIndex 
+                isAnswerCorrect
                   ? "text-green-800 dark:text-green-300" 
                   : "text-red-800 dark:text-red-300"
               }>解説</span>

@@ -1,8 +1,10 @@
 // DS検定問題データベース Ver5.0
 
+import { QuestionCategory } from './types';
+
 export interface Question {
   id: number;
-  category: 'データサイエンス力' | 'データエンジニアリング力' | 'ビジネス力';
+  category: QuestionCategory;
   difficulty: '基礎' | '応用';
   question: string;
   options: string[];

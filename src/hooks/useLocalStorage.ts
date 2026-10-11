@@ -11,7 +11,6 @@ import {
 export function useAnsweredQuestions() {
   // localStorage は同期的に読めるため、初期化時に読み込む（Effect内でのsetStateを避ける）
   const [answeredQuestions, setAnsweredQuestions] = useState<AnsweredQuestion[]>(() => loadAnsweredQuestions());
-  const isLoading = false;
 
   useEffect(() => {
     if (answeredQuestions.length > 0) {
@@ -27,7 +26,7 @@ export function useAnsweredQuestions() {
     setAnsweredQuestions(prev => [...prev, answer]);
   }, []);
 
-  return { answeredQuestions, addAnsweredQuestion, isLoading };
+  return { answeredQuestions, addAnsweredQuestion };
 }
 
 export function useTheme() {

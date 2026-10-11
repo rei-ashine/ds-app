@@ -1,7 +1,8 @@
 import { memo } from 'react';
+import { View } from '../types';
 
 export interface FooterProps {
-  onNavigate: (view: 'home' | 'terms' | 'privacy') => void;
+  onNavigate: (view: View) => void;
 }
 
 export const Footer = memo(({ onNavigate }: FooterProps) => {
