@@ -92,14 +92,16 @@ export default function DSExamStudyApp() {
     quizProgressRef.current = { currentQuestion, selectedAnswer };
   }, [currentQuestion, selectedAnswer]);
 
+  const startQuiz = useCallback((mode: StudyMode, category?: Category) => {
+    setStudyMode(mode);
+    if (category) {
+      setSelectedCategory(category);
+    }
+    resetQuiz();
+  }, [resetQuiz]);
+
   const handleModeSwitch = useCallback((mode: StudyMode, category?: Category) => {
-    const action = () => {
-      setStudyMode(mode);
-      if (category) {
-        setSelectedCategory(category);
-      }
-      resetQuiz();
-    };
+    const action = () => startQuiz(mode, category);
 
     const { currentQuestion: cq, selectedAnswer: sa } = quizProgressRef.current;
     if (cq > 0 || sa !== null) {
@@ -107,25 +109,18 @@ export default function DSExamStudyApp() {
     } else {
       action();
     }
-  }, [resetQuiz]);
+  }, [startQuiz]);
 
-  const handleStartReview = useCallback(() => {
-    setStudyMode('review');
-    resetQuiz();
-  }, [resetQuiz]);
+  const handleStartReview = useCallback(() => startQuiz('review'), [startQuiz]);
 
-  const handleReturnToAll = useCallback(() => {
-    setStudyMode('all');
-    setSelectedCategory('all');
-    resetQuiz();
-  }, [resetQuiz]);
+  const handleReturnToAll = useCallback(() => startQuiz('all', 'all'), [startQuiz]);
 
   const handleConfirmAction = useCallback(() => {
-    setConfirmDialog(prev => {
-      if (prev.action) prev.action();
-      return { isOpen: false, action: null };
-    });
-  }, []);
+    // 状態更新関数は純粋である必要があるため、副作用のある action は更新関数の外で実行する
+    const { action } = confirmDialog;
+    setConfirmDialog({ isOpen: false, action: null });
+    action?.();
+  }, [confirmDialog]);
 
   const handleCancelAction = useCallback(() => {
     setConfirmDialog({ isOpen: false, action: null });

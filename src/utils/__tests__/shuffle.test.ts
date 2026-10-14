@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import { shuffleQuestions, createShuffledIndices } from '../shuffleQuestions';
+import { shuffleArray, createShuffledIndices } from '../shuffle';
 import { Question } from '../../questions';
 
-describe('shuffleQuestions', () => {
+describe('shuffleArray', () => {
   const mockQuestions: Question[] = [
     {
       id: 1,
@@ -35,14 +35,14 @@ describe('shuffleQuestions', () => {
 
   it('should return a new array without modifying the original', () => {
     const original = [...mockQuestions];
-    const shuffled = shuffleQuestions(mockQuestions);
+    const shuffled = shuffleArray(mockQuestions);
     
     expect(mockQuestions).toEqual(original);
     expect(shuffled).not.toBe(mockQuestions);
   });
 
   it('should return all questions in the shuffled array', () => {
-    const shuffled = shuffleQuestions(mockQuestions);
+    const shuffled = shuffleArray(mockQuestions);
     
     expect(shuffled).toHaveLength(mockQuestions.length);
     
@@ -53,13 +53,13 @@ describe('shuffleQuestions', () => {
   });
 
   it('should handle empty array', () => {
-    const shuffled = shuffleQuestions([]);
+    const shuffled = shuffleArray([]);
     expect(shuffled).toEqual([]);
   });
 
   it('should handle single item array', () => {
     const singleItem = [mockQuestions[0]];
-    const shuffled = shuffleQuestions(singleItem);
+    const shuffled = shuffleArray(singleItem);
     
     expect(shuffled).toEqual(singleItem);
     expect(shuffled).not.toBe(singleItem);
@@ -75,7 +75,7 @@ describe('shuffleQuestions', () => {
       .mockReturnValueOnce(0.9)
       .mockReturnValueOnce(0.5);
     
-    const shuffled1 = shuffleQuestions(mockQuestions);
+    const shuffled1 = shuffleArray(mockQuestions);
     
     // Second shuffle with different seed
     Math.random = vi.fn()
@@ -83,7 +83,7 @@ describe('shuffleQuestions', () => {
       .mockReturnValueOnce(0.1)
       .mockReturnValueOnce(0.5);
     
-    const shuffled2 = shuffleQuestions(mockQuestions);
+    const shuffled2 = shuffleArray(mockQuestions);
     
     // Restore original Math.random
     Math.random = originalRandom;
@@ -93,7 +93,7 @@ describe('shuffleQuestions', () => {
   });
 
   it('should preserve question properties', () => {
-    const shuffled = shuffleQuestions(mockQuestions);
+    const shuffled = shuffleArray(mockQuestions);
     
     shuffled.forEach(question => {
       const original = mockQuestions.find(q => q.id === question.id);

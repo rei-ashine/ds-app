@@ -9,7 +9,7 @@ const makeQuestion = (id: number, category: Question['category']): Question => (
   difficulty: '基礎',
   question: `Question ${id}`,
   options: ['A', 'B', 'C', 'D'],
-  correct: 0,
+  correct: id % 4,
   explanation: `Explanation ${id}`
 });
 
@@ -65,7 +65,8 @@ describe('buildQuizQuestions', () => {
 
     expect(result.map(q => q.id).sort()).toEqual([1, 4]);
     result.forEach(q => {
-      expect(q.shuffledOptions.sort()).toEqual(['A', 'B', 'C', 'D']);
+      expect(q.shuffledOptions[q.shuffledCorrectIndex]).toBe(q.options[q.correct]);
+      expect([...q.shuffledOptions].sort()).toEqual(['A', 'B', 'C', 'D']);
     });
   });
 });
