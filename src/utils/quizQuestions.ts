@@ -1,6 +1,6 @@
 import { Question } from '../questions';
 import { AnsweredQuestion, Category, StudyMode } from '../types';
-import { shuffleQuestions } from './shuffleQuestions';
+import { shuffleArray } from './shuffle';
 import { shuffleQuestionOptions, ShuffledQuestion } from './shuffleOptions';
 
 /** 問題ごとの最新の正誤（同じ問題に複数回答えた場合は最後の解答を採用） */
@@ -39,5 +39,5 @@ export function buildQuizQuestions(
   answeredQuestions: AnsweredQuestion[]
 ): ShuffledQuestion[] {
   const filtered = filterQuestions(allQuestions, studyMode, selectedCategory, answeredQuestions);
-  return shuffleQuestions(filtered).map(shuffleQuestionOptions);
+  return shuffleArray(filtered).map(shuffleQuestionOptions);
 }

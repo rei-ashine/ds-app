@@ -1,5 +1,5 @@
 import { Question } from '../questions';
-import { createShuffledIndices } from './shuffleQuestions';
+import { createShuffledIndices } from './shuffle';
 
 export interface ShuffledQuestion extends Question {
   shuffledOptions: string[];

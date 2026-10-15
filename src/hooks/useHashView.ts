@@ -13,7 +13,7 @@ const VIEW_META: Record<View, { hash: string; title: string }> = {
   privacy: { hash: '#privacy', title: 'Privacy Policy | DS Exam Study App' },
 };
 
-function viewFromHash(hash: string): View {
+export function viewFromHash(hash: string): View {
   const lower = hash.toLowerCase();
   if (lower === VIEW_META.terms.hash) return 'terms';
   if (lower === VIEW_META.privacy.hash) return 'privacy';
@@ -22,14 +22,19 @@ function viewFromHash(hash: string): View {
 
 /** URLハッシュと表示中の画面を同期し、ドキュメントタイトルの更新と GTM 仮想ページビュー計測を行う */
 export function useHashView() {
-  const [activeView, setActiveView] = useState<View>('home');
+  // 初回レンダーから URL の画面を使い、直リンク時にホームのページビューが送られないようにする
+  const [activeView, setActiveView] = useState<View>(() => viewFromHash(window.location.hash));
 
   useEffect(() => {
-    const handleHashChange = () => setActiveView(viewFromHash(window.location.hash));
+    const syncWithLocation = () => setActiveView(viewFromHash(window.location.hash));
 
-    handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    // ホームへの遷移は pushState で行うため、履歴移動は popstate でも拾う
+    window.addEventListener('hashchange', syncWithLocation);
+    window.addEventListener('popstate', syncWithLocation);
+    return () => {
+      window.removeEventListener('hashchange', syncWithLocation);
+      window.removeEventListener('popstate', syncWithLocation);
+    };
   }, []);
 
   useEffect(() => {
@@ -40,15 +45,21 @@ export function useHashView() {
       window.dataLayer.push({
         event: 'page_view',
         page_title: title,
-        page_path: `/${hash}`
+        page_path: `${window.location.pathname}${hash}`
       });
     }
   }, [activeView]);
 
   const navigate = useCallback((view: View) => {
-    window.location.hash = VIEW_META[view].hash;
-    // ハッシュが既に空の場合は hashchange が発火しないため、ホームへの遷移は直接反映する
-    if (view === 'home' && window.location.hash === '') setActiveView('home');
+    if (view === 'home') {
+      // location.hash = '' では URL 末尾に '#' が残るため、ハッシュを除いた URL を履歴に積む
+      if (window.location.hash) {
+        window.history.pushState(null, '', `${window.location.pathname}${window.location.search}`);
+      }
+      setActiveView('home');
+    } else {
+      window.location.hash = VIEW_META[view].hash;
+    }
   }, []);
 
   return { activeView, navigate };

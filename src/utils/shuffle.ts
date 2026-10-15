@@ -1,5 +1,3 @@
-import { Question } from '../questions';
-
 /**
  * Shuffles an array using Fisher-Yates algorithm
  * Returns a new array without modifying the original
@@ -13,10 +11,6 @@ export function shuffleArray<T>(items: readonly T[]): T[] {
   }
 
   return shuffled;
-}
-
-export function shuffleQuestions<T extends Question>(questions: T[]): T[] {
-  return shuffleArray(questions);
 }
 
 /**
