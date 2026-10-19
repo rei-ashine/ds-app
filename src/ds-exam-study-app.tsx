@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import "@theme-toggles/react/css/Expand.css";
 import { StudyMode, Category } from './types';
 import { useAnsweredQuestions, useTheme } from './hooks/useLocalStorage';
 import { useCategoryStats } from './hooks/useCategoryStats';
